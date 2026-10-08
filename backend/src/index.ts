@@ -12,10 +12,10 @@ let databaseInitializationFailed = false;
 const databaseInitialization = (async () => {
   for (let attempt = 1; ; attempt++) {
     try {
-      await sql`CREATE TABLE IF NOT EXISTS product (
+      await sql`CREATE TABLE IF NOT EXISTS members (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
-        cost INT NOT NULL
+        surname VARCHAR(100) NOT NULL
       )`;
       return;
     } catch (error) {
@@ -42,5 +42,5 @@ const app = new Elysia({ prefix: "/api/v1" })
   .use(cors())
   .get("/health", () => ({ status: "ok" }))
   .listen({ hostname: "0.0.0.0", port: Number(process.env.PORT ?? 3001) });
-
+  
 console.log(`Server running on http://${app.server?.hostname}:${app.server?.port}`);

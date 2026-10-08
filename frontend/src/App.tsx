@@ -18,7 +18,6 @@ function App() {
   return (
     <main>
       <h1>Think different Academy</h1>
-      <p>Status: {healthStatus}</p>
     </main>
   );
 }
