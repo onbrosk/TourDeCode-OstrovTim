@@ -1,56 +1,9 @@
-import { useState, useEffect } from "react";
-import { getProducts, createProduct, updateProduct, deleteProduct, Product } from "./api";
-import ProductForm from "./ProductForm";
-import ProductTable from "./ProductTable";
+import React from 'react'
 
-export default function App() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-
-  async function loadProducts() {
-    try {
-      const data = await getProducts();
-      setProducts(data);
-    } catch (e) {
-      console.error("Failed to load products:", e);
-    }
-  }
-
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  async function handleCreate(product: Omit<Product, "id">) {
-    await createProduct(product);
-    loadProducts();
-  }
-
-  async function handleUpdate(id: number, product: Omit<Product, "id">) {
-    await updateProduct(id, product);
-    setEditingProduct(null);
-    loadProducts();
-  }
-
-  async function handleDelete(id: number) {
-    await deleteProduct(id);
-    loadProducts();
-  }
-
+function App() {
   return (
-    <div>
-      <h1>School buffet</h1>
-
-      <ProductForm
-        onSubmit={editingProduct ? (p) => handleUpdate(editingProduct.id, p) : handleCreate}
-        initial={editingProduct}
-        onCancel={editingProduct ? () => setEditingProduct(null) : null}
-      />
-
-      <ProductTable
-        products={products}
-        onEdit={setEditingProduct}
-        onDelete={handleDelete}
-      />
-    </div>
-  );
+    <div>Think different Academy</div>
+  )
 }
+
+export default App
