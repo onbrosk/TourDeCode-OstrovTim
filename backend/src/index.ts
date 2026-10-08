@@ -37,47 +37,10 @@ const ProductBody = t.Object({ name: t.String(), cost: t.Integer() });
 // Elysia's response pipeline silently drops the cors() plugin's headers when a
 // handler returns one directly (same-origin prod, behind Caddy, never notices).
 // Spread into a plain array/object before returning.
-const app = new Elysia()
-  .use(cors())
-  .get("/api/v1/health", () => ({ status: "ok" }))
-  .group("/api/product", (app) =>
-    app
-      .onBeforeHandle(async ({ set }) => {
-        await databaseInitialization;
-        if (databaseInitializationFailed) {
-          set.status = 503;
-          return { message: "Database unavailable" };
-        }
-      })
-      .get("/", async () => [...(await sql<Product[]>`SELECT id, name, cost FROM product ORDER BY id`)])
-      .post(
-        "/",
-        async ({ body }) => {
-          const result = await sql`INSERT INTO product (name, cost) VALUES (${body.name}, ${body.cost})`;
-          return { id: Number(result.lastInsertRowid), ...body };
-        },
-        { body: ProductBody },
-      )
-      .put(
-        "/:id",
-        async ({ params: { id }, body, status }) => {
-          const [product] = [...(await sql<Product[]>`SELECT id FROM product WHERE id = ${id}`)];
-          if (!product) return status(404, { message: "Product does not exist" });
 
-          await sql`UPDATE product SET name = ${body.name}, cost = ${body.cost} WHERE id = ${id}`;
-          return { id, ...body };
-        },
-        { params: t.Object({ id: t.Numeric() }), body: ProductBody },
-      )
-      .delete(
-        "/:id",
-        async ({ params: { id } }) => {
-          await sql`DELETE FROM product WHERE id = ${id}`;
-          return { message: "Product was deleted permanently from DB." };
-        },
-        { params: t.Object({ id: t.Numeric() }) },
-      ),
-  )
+const app = new Elysia({ prefix: "/api/v1" })
+  .use(cors())
+  .get("/health", () => ({ status: "ok" }))
   .listen({ hostname: "0.0.0.0", port: Number(process.env.PORT ?? 3001) });
 
 console.log(`Server running on http://${app.server?.hostname}:${app.server?.port}`);
