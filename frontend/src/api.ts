@@ -4,7 +4,25 @@ export interface Product {
   cost: number;
 }
 
+export interface HealthResponse {
+  status: "ok";
+}
+
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001/api";
+
+export async function getHealth(): Promise<HealthResponse> {
+  const res = await fetch(`${API_URL}/v1/health`);
+  if (!res.ok) {
+    throw new Error(`Health check failed with HTTP ${res.status}`);
+  }
+
+  const data: unknown = await res.json();
+  if (typeof data !== "object" || data === null || !("status" in data) || data.status !== "ok") {
+    throw new Error("Health check returned an invalid response");
+  }
+
+  return { status: data.status };
+}
 
 export async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${API_URL}/product`);
