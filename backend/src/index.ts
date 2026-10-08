@@ -8,21 +8,26 @@ type Product = { id: number; name: string; cost: number };
 // allowPublicKeyRetrieval: MySQL 8 password auth over plain TCP; safe because the DB is on the pod's localhost.
 const sql = new SQL(process.env.DATABASE_URL!, { allowPublicKeyRetrieval: true });
 
-// The database may still be starting up (no startup order on Tour de Cloud), so retry.
-for (let attempt = 1; ; attempt++) {
-  try {
-    await sql`CREATE TABLE IF NOT EXISTS product (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      name VARCHAR(100) NOT NULL,
-      cost INT NOT NULL
-    )`;
-    break;
-  } catch (error) {
-    if (attempt === 60) throw error;
-    console.log("Waiting for database...");
-    await Bun.sleep(1000);
+let databaseInitializationFailed = false;
+const databaseInitialization = (async () => {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await sql`CREATE TABLE IF NOT EXISTS product (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        cost INT NOT NULL
+      )`;
+      return;
+    } catch (error) {
+      if (attempt === 60) throw error;
+      console.log("Waiting for database...");
+      await Bun.sleep(1000);
+    }
   }
-}
+})().catch((error: unknown) => {
+  databaseInitializationFailed = true;
+  console.error("Database initialization failed:", error);
+});
 
 const ProductBody = t.Object({ name: t.String(), cost: t.Integer() });
 
@@ -37,6 +42,13 @@ const app = new Elysia()
   .get("/api/v1/health", () => ({ status: "ok" }))
   .group("/api/product", (app) =>
     app
+      .onBeforeHandle(async ({ set }) => {
+        await databaseInitialization;
+        if (databaseInitializationFailed) {
+          set.status = 503;
+          return { message: "Database unavailable" };
+        }
+      })
       .get("/", async () => [...(await sql<Product[]>`SELECT id, name, cost FROM product ORDER BY id`)])
       .post(
         "/",
