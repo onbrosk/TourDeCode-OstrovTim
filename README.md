@@ -43,13 +43,13 @@ Kód je v `frontend/src/`:
 
 Spuštění mimo Docker: `cd frontend && npm install && npm run dev -- --port 3000`. Backend volá na `http://localhost:3001/api` (nastaveno v `.env` jako `VITE_API_URL`).
 
-## Backend: TypeScript Express
+## Backend: TypeScript Elysia
 
-API v Express s MySQL (přes `mysql2`). Celá aplikace je v jediném souboru `backend/src/index.ts`: routy, databázové dotazy i start na jednom místě.
+API v Elysii na Bunu, s MySQL přes vestavěný `SQL` klient Bunu. Celá aplikace je v jediném souboru `backend/src/index.ts`: routy, databázové dotazy i start na jednom místě.
 
-`docker compose up` ho spustí přes `tsx watch`, který se restartuje po každé změně: úprava `src/index.ts` se projeví okamžitě.
+`docker compose up` ho spustí přes `nodemon --legacy-watch`, který se restartuje po každé změně: úprava `src/index.ts` se projeví do sekundy nebo dvou (nodemon změny zjišťuje pollingem, ne sledováním systémových událostí, protože vlastní `--watch` Bunu nevidí úpravy provedené zvenku kontejneru).
 
-Spuštění mimo Docker: nejdřív spusťte MySQL příkazem `docker compose up -d mysql`, pak `npm install` a `npm run dev`. API poslouchá na `http://localhost:3001/api/product`. Připojení k databázi se nastavuje proměnnou `DATABASE_URL` v `.env`.
+Spuštění mimo Docker: nejdřív spusťte MySQL příkazem `docker compose up -d mysql`, pak `bun install` a `bun run dev` (nebo přímo `bun --watch src/index.ts`, který mimo Docker reaguje okamžitě). API poslouchá na `http://localhost:3001/api/product`. Připojení k databázi se nastavuje proměnnou `DATABASE_URL` v `.env`.
 
 # English
 
@@ -94,10 +94,10 @@ Code lives in `frontend/src/`:
 
 To run it outside Docker: `cd frontend && npm install && npm run dev -- --port 3000`. It calls the backend at `http://localhost:3001/api` by default (set in `.env` as `VITE_API_URL`).
 
-## Backend: TypeScript Express
+## Backend: TypeScript Elysia
 
-An Express API with MySQL (via `mysql2`). The whole app is one file, `backend/src/index.ts`: routes, database queries and startup all in one place.
+An Elysia API on Bun, with MySQL via Bun's built-in `SQL` client. The whole app is one file, `backend/src/index.ts`: routes, database queries and startup all in one place.
 
-`docker compose up` runs it with `tsx watch`, which restarts on every change: edit `src/index.ts` and it picks up the change immediately.
+`docker compose up` runs it with `nodemon --legacy-watch`, which restarts on every change: edit `src/index.ts` and it picks up the change within a second or two (nodemon polls for changes rather than watching file events, since Bun's own `--watch` doesn't see edits made from outside the container).
 
-To run it outside Docker: start MySQL with `docker compose up -d mysql`, then `npm install` and `npm run dev`. The API listens on `http://localhost:3001/api/product`. The database connection comes from `DATABASE_URL` in `.env`.
+To run it outside Docker: start MySQL with `docker compose up -d mysql`, then `bun install` and `bun run dev` (or `bun --watch src/index.ts` directly, which reloads instantly when you're not inside Docker). The API listens on `http://localhost:3001/api/product`. The database connection comes from `DATABASE_URL` in `.env`.

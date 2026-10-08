@@ -1,13 +1,13 @@
-FROM node:24-alpine
+FROM oven/bun:1.4-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile --production
 COPY . .
 
 ENV PORT=3001
 EXPOSE 3001
 
-USER node
-CMD ["node", "src/index.ts"]
+USER bun
+CMD ["bun", "src/index.ts"]
