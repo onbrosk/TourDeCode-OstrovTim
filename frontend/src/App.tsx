@@ -6,6 +6,7 @@ import ProductTable from "./ProductTable";
 export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [status, setStatus] = useState("");
 
   async function loadProducts() {
     try {
@@ -19,6 +20,13 @@ export default function App() {
   useEffect(() => {
     loadProducts();
   }, []);
+
+  useEffect(() => {
+  fetch(`${import.meta.env.VITE_API_URL}/v1/health`)
+    .then((r) => r.json())
+    .then((data) => setStatus(String(data.status).toUpperCase()))
+    .catch((e) => console.error("Health check failed:", e));
+}, []);
 
   async function handleCreate(product: Omit<Product, "id">) {
     await createProduct(product);
@@ -39,6 +47,7 @@ export default function App() {
   return (
     <div>
       <h1>School buffet</h1>
+      <p>Status: {status}</p>
 
       <ProductForm
         onSubmit={editingProduct ? (p) => handleUpdate(editingProduct.id, p) : handleCreate}
