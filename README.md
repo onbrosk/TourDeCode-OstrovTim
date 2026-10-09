@@ -29,6 +29,8 @@ Pak pushněte do `main`.
 
 API počká při startu až 30 sekund na MySQL. Pokud databáze není dostupná ani poté,
 start skončí s chybou místo spuštění nefunkčního API.
+V nasazení se kontejnery připojují přes názvy služeb (`mysql`, `server`, `web`);
+localhost se používá pouze při lokálním vývoji s host networkingem.
 
 ## Frontend: React (TypeScript, Vite)
 
@@ -83,6 +85,8 @@ Then push to `main`.
 
 The API waits up to 30 seconds for MySQL during startup. If the database is still
 unavailable, startup fails visibly instead of serving an unusable API.
+In deployment, containers connect to each other by service name (`mysql`,
+`server`, `web`); localhost is used only for local development with host networking.
 
 ## Frontend: React (TypeScript, Vite)
 
