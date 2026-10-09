@@ -1,18 +1,26 @@
-import { t, type UnwrapSchema } from 'elysia'
+const db = require('../db'); // Assumes a MySQL connection pool instance
+import { t } from 'elysia';
+class MemberModel {
+  static async findAll() {
+    const [rows] = await db.execute('SELECT id, name, surname FROM members');
+    return rows;
+  }
 
-export const AuthModel = {
-	signInBody: t.Object({
-		username: t.String(),
-		password: t.String(),
-	}),
-	signInResponse: t.Object({
-		username: t.String(),
-		token: t.String(),
-	}),
-	signInInvalid: t.Literal('Invalid username or password')
-} as const
+  static async findById(id: number) {
+    const [rows] = await db.execute(
+      'SELECT id, name, surname FROM members WHERE id = ?',
+      [id]
+    );
+    return rows[0] || null;
+  }
 
-// Optional, cast all model to TypeScript type
-export type AuthModel = {
-	[k in keyof typeof AuthModel]: UnwrapSchema<typeof AuthModel[k]>
+  static async create({ name, surname }: { name: string; surname: string }) {
+    const [result] = await db.execute(
+      'INSERT INTO members (name, surname) VALUES (?, ?)',
+      [name, surname]
+    );
+    return result.insertId;
+  }
 }
+
+module.exports = MemberModel;
