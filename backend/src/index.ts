@@ -1,7 +1,9 @@
 import { Elysia } from 'elysia';
 import { membersPlugin } from './members/index';
 import { healthPlugin } from './health/index';
+import { initDb } from './db';
 
+initDb()
 const app = new Elysia({ prefix: '/api' })
   .use(membersPlugin)
   .use(healthPlugin)
