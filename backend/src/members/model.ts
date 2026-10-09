@@ -1,26 +1,19 @@
-const db = require('../db'); // Assumes a MySQL connection pool instance
-import { t } from 'elysia';
-class MemberModel {
-  static async findAll() {
-    const [rows] = await db.execute('SELECT id, name, surname FROM members');
-    return rows;
-  }
+import { t } from 'elysia'
 
-  static async findById(id: number) {
-    const [rows] = await db.execute(
-      'SELECT id, name, surname FROM members WHERE id = ?',
-      [id]
-    );
-    return rows[0] || null;
-  }
+export const MemberModel = {
+  params: t.Object({
+    id: t.Numeric()
+  }),
 
-  static async create({ name, surname }: { name: string; surname: string }) {
-    const [result] = await db.execute(
-      'INSERT INTO members (name, surname) VALUES (?, ?)',
-      [name, surname]
-    );
-    return result.insertId;
-  }
+  createBody: t.Object({
+    name: t.String({ minLength: 2 }),
+    surname: t.String({ minLength: 2 }),
+  }),
+
+  memberResponse: t.Object({
+    id: t.Number(),
+    name: t.String(),
+    email: t.String(),
+    created_at: t.Date()
+  })
 }
-
-module.exports = MemberModel;
