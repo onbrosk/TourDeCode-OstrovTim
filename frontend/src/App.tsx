@@ -3,7 +3,7 @@ import React from 'react'
 import { useEffect, useState } from "react";
 import { getHealth } from "./api";
 import DisplayMembers from "./components/DisplayMembers";
-import DisplayTeams from "./components/DisplayTeams";
+import DisplayTeams from "./components/displayTeams";
 function App() {
   const [healthStatus, setHealthStatus] = useState("Loading...");
 
