@@ -57,6 +57,32 @@ export async function getMembers(): Promise<Member[]> {
   return data;
 }
 
+export async function getTeams(): Promise<Member[]> {
+  const res = await fetch(`${API_URL}/teams`);
+  if (!res.ok) {
+    throw new Error(`Failed to load members: HTTP ${res.status}`);
+  }
+
+  const data: unknown = await res.json();
+  if (
+    !Array.isArray(data) ||
+    !data.every(
+      (member: unknown) =>
+        typeof member === "object" &&
+        member !== null &&
+        "id" in member &&
+        typeof member.id === "number" &&
+        "name" in member &&
+        typeof member.name === "string"
+    )
+  ) {
+    throw new Error("Members API returned an invalid response");
+  }
+
+  return data;
+}
+
+
 export async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${API_URL}/product`);
   return res.json();
