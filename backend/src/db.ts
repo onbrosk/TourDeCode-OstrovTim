@@ -13,21 +13,33 @@ const pool = mysql.createPool({
   enableKeepAlive: true
 })
 
-export async function initDb() {
+export async function cleanDb() {
   try {
-    await pool.query(`
+    await pool.query('DROP TABLE IF EXISTS members')
+    await pool.query('DROP TABLE IF EXISTS teams')
+    console.log('[MySQL]: Database cleaned.')
+  } catch (error) {
+    console.error('[MySQL Cleaning Error]:', error)
+  }
+}
+
+export async function initDb() {
+  await pool.query(`
       CREATE TABLE IF NOT EXISTS members (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL UNIQUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        surname VARCHAR(255) NOT NULL UNIQUE
       )
     `)
 
-    console.log(`[MySQL]: Database "aplication" and "members" table are ready.`)
-  } catch (error) {
-    console.error('[MySQL Initialization Error]:', error)
-  }
+  await pool.query(`
+      CREATE TABLE IF NOT EXISTS teams (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL
+      )
+    `)
+
+  console.log('[MySQL]: Members and teams tables are ready.')
 }
 
 

@@ -1,18 +1,16 @@
 import { t } from 'elysia'
 
-export const MemberModel = {
+export const TeamModel = {
   params: t.Object({
     id: t.Numeric()
   }),
 
   createBody: t.Object({
     name: t.String({ minLength: 2 }),
-    surname: t.String({ minLength: 2 }),
   }),
 
-  memberResponse: t.Object({
+  teamResponse: t.Object({
     id: t.Number(),
     name: t.String(),
-    surname: t.String(),
   })
 }
