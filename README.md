@@ -27,6 +27,9 @@ Push do větve `main` spustí `.github/workflows/deploy.yml`, který nahraje pro
 
 Pak pushněte do `main`.
 
+API počká při startu až 30 sekund na MySQL. Pokud databáze není dostupná ani poté,
+start skončí s chybou místo spuštění nefunkčního API.
+
 ## Frontend: React (TypeScript, Vite)
 
 Jednostránková aplikace v Reactu s TypeScriptem, postavená na Vite.
@@ -77,6 +80,9 @@ Pushing to `main` runs `.github/workflows/deploy.yml`, which uploads the project
 2. Open `tourdeapp.yaml` and replace `<slug>` with your project's slug in all four `image:` lines.
 
 Then push to `main`.
+
+The API waits up to 30 seconds for MySQL during startup. If the database is still
+unavailable, startup fails visibly instead of serving an unusable API.
 
 ## Frontend: React (TypeScript, Vite)
 

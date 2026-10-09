@@ -13,6 +13,10 @@ const pool = mysql.createPool({
   enableKeepAlive: true
 })
 
+function isConnectionRefused(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === 'ECONNREFUSED'
+}
+
 export async function cleanDb() {
   try {
     await pool.query('DROP TABLE IF EXISTS members')
@@ -24,22 +28,37 @@ export async function cleanDb() {
 }
 
 export async function initDb() {
-  await pool.query(`
-      CREATE TABLE IF NOT EXISTS members (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        surname VARCHAR(255) NOT NULL UNIQUE
-      )
-    `)
+  const maxAttempts = 30
+  const retryDelayMs = 1000
 
-  await pool.query(`
-      CREATE TABLE IF NOT EXISTS teams (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL
-      )
-    `)
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS members (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          surname VARCHAR(255) NOT NULL UNIQUE
+        )
+      `)
 
-  console.log('[MySQL]: Members and teams tables are ready.')
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS teams (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(255) NOT NULL
+        )
+      `)
+
+      console.log('[MySQL]: Members and teams tables are ready.')
+      return
+    } catch (error) {
+      if (!isConnectionRefused(error) || attempt === maxAttempts) {
+        throw error
+      }
+
+      console.warn(`[MySQL]: Connection refused; retrying (${attempt}/${maxAttempts}).`)
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs))
+    }
+  }
 }
 
 
