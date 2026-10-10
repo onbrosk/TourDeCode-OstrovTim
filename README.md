@@ -26,6 +26,9 @@ Push do větve `main` spustí `.github/workflows/deploy.yml`, který nahraje pro
 2. Otevřete `tourdeapp.yaml` a nahraďte `<slug>` slugem vašeho projektu, ve všech čtyřech řádcích `image:`.
 
 Pak pushněte do `main`.
+MySQL účet aplikace (`MYSQL_USER` / `MYSQL_PASSWORD`) musí odpovídat údajům v `DATABASE_URL`.
+MySQL image tyto proměnné použije při první inicializaci databáze; u existující databáze
+je potřeba účet vytvořit nebo heslo aktualizovat ručně.
 
 ## Frontend: React (TypeScript, Vite)
 
@@ -77,6 +80,9 @@ Pushing to `main` runs `.github/workflows/deploy.yml`, which uploads the project
 2. Open `tourdeapp.yaml` and replace `<slug>` with your project's slug in all four `image:` lines.
 
 Then push to `main`.
+The MySQL application account (`MYSQL_USER` / `MYSQL_PASSWORD`) must match the credentials
+in `DATABASE_URL`. The MySQL image applies these variables on its first database initialization;
+for an existing database, create the account or update its password manually.
 
 ## Frontend: React (TypeScript, Vite)
 
