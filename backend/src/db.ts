@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise'
+import type { RowDataPacket } from 'mysql2/promise'
 
 const databaseUrl = process.env.DATABASE_URL
 
@@ -47,6 +48,20 @@ export async function initDb() {
           name VARCHAR(255) NOT NULL
         )
       `)
+
+      const [teamRows] = await pool.query<RowDataPacket[]>('SELECT id FROM teams LIMIT 1')
+      if (teamRows.length === 0) {
+        await pool.query('INSERT INTO teams (name) VALUES (?)', ['Ostrov Tim'])
+      }
+
+      await pool.query(
+        'INSERT IGNORE INTO members (name, surname) VALUES (?, ?), (?, ?), (?, ?)',
+        [
+          'Kristián', 'Kurimský',
+          'Lucia', 'Dugasová',
+          'Moussa', 'Rehahla',
+        ],
+      )
 
       console.log('[MySQL]: Members and teams tables are ready.')
       return

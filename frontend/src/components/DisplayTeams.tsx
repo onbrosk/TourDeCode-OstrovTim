@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { getTeams, type Member } from "../api";
+import { getTeams, type Team } from "../api";
 
 export default function DisplayMembers() {
-  const [teams, setTeams] = useState<Member[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,10 +26,8 @@ export default function DisplayMembers() {
 
   return (
     <ul>
-      {teams.map((member) => (
-        <li key={member.id}>
-          {member.name} {member.surname}
-        </li>
+      {teams.map((team) => (
+        <li key={team.id}>{team.name}</li>
       ))}
     </ul>
   );
