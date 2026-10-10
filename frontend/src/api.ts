@@ -3,6 +3,12 @@ export interface Member {
   name: string;
   surname: string;
 }
+
+export interface Team {
+  id: number;
+  name: string;
+}
+
 export interface HealthResponse {
   status: "ok";
 }
@@ -44,6 +50,31 @@ export async function getMembers(): Promise<Member[]> {
     )
   ) {
     throw new Error("Members API returned an invalid response");
+  }
+
+  return data;
+}
+
+export async function getTeams(): Promise<Team[]> {
+  const res = await fetch(`${API_URL}/teams`);
+  if (!res.ok) {
+    throw new Error(`Failed to load teams: HTTP ${res.status}`);
+  }
+
+  const data: unknown = await res.json();
+  if (
+    !Array.isArray(data) ||
+    !data.every(
+      (team: unknown) =>
+        typeof team === "object" &&
+        team !== null &&
+        "id" in team &&
+        typeof team.id === "number" &&
+        "name" in team &&
+        typeof team.name === "string"
+    )
+  ) {
+    throw new Error("Teams API returned an invalid response");
   }
 
   return data;
