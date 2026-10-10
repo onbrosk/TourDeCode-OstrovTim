@@ -2,6 +2,7 @@ import React from 'react'
 
 import { useEffect, useState } from "react";
 import { getHealth } from "./api";
+import DisplayMembers from './components/DisplayMembers';
 
 function App() {
   const [healthStatus, setHealthStatus] = useState("Loading...");
@@ -18,6 +19,7 @@ function App() {
   return (
     <main>
       <h1>Think different Academy</h1>
+      <DisplayMembers />
     </main>
   );
 }
