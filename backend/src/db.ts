@@ -30,7 +30,7 @@ export async function cleanDb() {
 }
 
 export async function initDb() {
-  const maxAttempts = 30
+  const maxAttempts = 90
   const retryDelayMs = 1000
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
