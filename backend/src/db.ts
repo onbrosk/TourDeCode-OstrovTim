@@ -15,7 +15,8 @@ const pool = mysql.createPool({
 })
 
 function isConnectionRefused(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && 'code' in error && error.code === 'ECONNREFUSED'
+  return typeof error === 'object' && error !== null && 'code' in error &&
+    (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND')
 }
 
 export async function cleanDb() {
