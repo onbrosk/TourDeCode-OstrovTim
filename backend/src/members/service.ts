@@ -5,21 +5,23 @@ export class MemberService {
   }
 
   static async getById(id: number) {
-    const [rows] = await sql.begin( async (db) =>
-      await db`SELECT id, name, surname FROM members WHERE id = ${id}`
+    const [member] = await sql.begin(async (db) =>
+      db`SELECT id, name, surname FROM members WHERE id = ${id}`
     )
-    const members = rows as any[]
-    if (!members.length) {
+    if (!member) {
       throw new Error('Member not found')
     }
-    return members[0]
+    return member
   }
 
   static async create(data: { name: string; surname: string }) {
-    const [result] = await sql.begin( async (db) =>
+    const [member] = await sql.begin(async (db) => {
       await db`INSERT INTO members (name, surname) VALUES (${data.name}, ${data.surname})`
-    )
-    const insertId = (result as any).insertId
-    return this.getById(insertId)
+      return db`SELECT id, name, surname FROM members WHERE id = LAST_INSERT_ID()`
+    })
+    if (!member) {
+      throw new Error('Inserted member could not be retrieved')
+    }
+    return member
   }
 }
