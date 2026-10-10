@@ -3,20 +3,11 @@ import { Elysia, t } from "elysia";
 import { sql } from "./db.js";
 import { membersPlugin } from "./members/index.js";
 import { teamsPlugin } from "./teams/index.js";
+import { runMigrations } from "./migrate.js";
 
 for (let attempt = 1; ; attempt++) {
   try {
-    await sql`CREATE TABLE IF NOT EXISTS members (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    surname VARCHAR(100) NOT NULL
-    )`;
-
-    await sql`CREATE TABLE IF NOT EXISTS teams (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
-    )`;
-
+    await runMigrations();
     break;
 
   } catch (error) {
