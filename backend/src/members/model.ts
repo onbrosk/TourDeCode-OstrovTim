@@ -1,18 +1,18 @@
-import { t } from 'elysia'
+import { t, type UnwrapSchema } from 'elysia'
 
-export const MemberModel = {
-  params: t.Object({
-    id: t.Numeric()
-  }),
+export const AuthModel = {
+	signInBody: t.Object({
+		username: t.String(),
+		password: t.String(),
+	}),
+	signInResponse: t.Object({
+		username: t.String(),
+		token: t.String(),
+	}),
+	signInInvalid: t.Literal('Invalid username or password')
+} as const
 
-  createBody: t.Object({
-    name: t.String({ minLength: 2 }),
-    surname: t.String({ minLength: 2 }),
-  }),
-
-  memberResponse: t.Object({
-    id: t.Number(),
-    name: t.String(),
-    surname: t.String(),
-  })
+// Optional, cast all model to TypeScript type
+export type AuthModel = {
+	[k in keyof typeof AuthModel]: UnwrapSchema<typeof AuthModel[k]>
 }
