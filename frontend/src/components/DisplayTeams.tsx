@@ -25,10 +25,10 @@ export default function DisplayTeams() {
   if (teams.length === 0) return <p>No teams found.</p>;
 
   return (
-    <ul>
+    <>
       {teams.map((team) => (
-        <li key={team.id}>{team.name}</li>
+        <h3 key={team.id}>{team.name}</h3>
       ))}
-    </ul>
+    </>
   );
 }
