@@ -1,11 +1,11 @@
 ALTER TABLE stops
-  ADD COLUMN lines VARCHAR(255) NOT NULL DEFAULT '',
+  ADD COLUMN `lines` VARCHAR(255) NOT NULL DEFAULT '',
   ADD COLUMN transfer_lines VARCHAR(255);
 
 INSERT INTO stops (
   id,
   name,
-  lines,
+  `lines`,
   is_transfer,
   transfer_lines,
   x,

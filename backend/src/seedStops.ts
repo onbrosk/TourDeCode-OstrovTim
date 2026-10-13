@@ -133,7 +133,7 @@ export async function seedStops() {
   for (const stop of stops) {
     await sql`
       INSERT INTO stops (
-        id, name, lines, is_transfer, transfer_lines, x, y,
+        id, name, \`lines\`, is_transfer, transfer_lines, x, y,
         wheelchair_accessible, has_shelter, has_bench,
         has_ticket_machine, has_display, image_url
       ) VALUES (
@@ -144,7 +144,7 @@ export async function seedStops() {
       )
       ON DUPLICATE KEY UPDATE
         name = VALUES(name),
-        lines = VALUES(lines),
+        \`lines\` = VALUES(\`lines\`),
         is_transfer = VALUES(is_transfer),
         transfer_lines = VALUES(transfer_lines),
         x = VALUES(x),
