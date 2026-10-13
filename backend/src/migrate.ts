@@ -33,4 +33,24 @@ export async function runMigrations() {
     await sql`INSERT INTO schema_migrations (name) VALUES (${file})`;
     console.log(`[migrate] Applied ${file}`);
   }
+
+  const stopColumns = await sql`
+    SELECT COLUMN_NAME AS name
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'stops'
+      AND COLUMN_NAME IN ('lines', 'transfer_lines')
+  `;
+  const existingStopColumns = new Set(
+    stopColumns.map((column: { name: string }) => column.name),
+  );
+
+  if (!existingStopColumns.has("lines")) {
+    await sql.unsafe(
+      "ALTER TABLE stops ADD COLUMN `lines` VARCHAR(255) NOT NULL DEFAULT ''",
+    );
+  }
+  if (!existingStopColumns.has("transfer_lines")) {
+    await sql.unsafe("ALTER TABLE stops ADD COLUMN transfer_lines VARCHAR(255)");
+  }
 }
