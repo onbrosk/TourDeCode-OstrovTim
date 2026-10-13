@@ -3,7 +3,9 @@ import { Elysia, t } from "elysia";
 import { sql } from "./db.js";
 import { membersPlugin } from "./members/index.js";
 import { teamsPlugin } from "./teams/index.js";
+import { stopsPlugin } from "./stops/index.js";
 import { runMigrations } from "./migrate.js";
+import { seedStops } from "./seedStops.js";
 
 for (let attempt = 1; ; attempt++) {
   try {
@@ -17,10 +19,13 @@ for (let attempt = 1; ; attempt++) {
   }
 }
 
+await seedStops();
+
 const app = new Elysia({ prefix: "/api" })
   .use(cors())
   .use(membersPlugin)
   .use(teamsPlugin)
+  .use(stopsPlugin)
   .listen({ hostname: "0.0.0.0", port: Number(process.env.PORT ?? 3001) });
 
 console.log(
