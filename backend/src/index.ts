@@ -21,7 +21,7 @@ for (let attempt = 1; ; attempt++) {
 
 await seedStops();
 
-const app = new Elysia({ prefix: "/api" })
+const app = new Elysia({ prefix: "/api/v1" })
   .use(cors())
   .use(membersPlugin)
   .use(teamsPlugin)
