@@ -8,15 +8,26 @@ type StopInput = {
   has_ticket_machine: boolean;
 };
 
+function normalizeStop(stop: any) {
+  return {
+    ...stop,
+    wheelchair_accessible: Boolean(stop.wheelchair_accessible),
+    has_shelter: Boolean(stop.has_shelter),
+    has_ticket_machine: Boolean(stop.has_ticket_machine),
+  };
+}
 export class StopService {
   static async getAll() {
-    return await sql`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops ORDER BY id`;
+    const stops =  await sql`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops ORDER BY id`;
+    return stops.map(normalizeStop);
   }
 
   static async getById(id: number) {
     const [stop] = await sql`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops WHERE id = ${id}`;
     if (!stop) throw new Error("Stop not found");
-    return stop;
+    
+    return normalizeStop(stop);
+
   }
 
   static async create(data: StopInput) {
@@ -28,7 +39,7 @@ export class StopService {
       return db`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops WHERE id = LAST_INSERT_ID()`;
     });
     if (!stop) throw new Error("Inserted stop could not be retrieved");
-    return stop;
+    return normalizeStop(stop);
   }
 
   static async update(id: number, data: StopInput) {
@@ -46,7 +57,7 @@ export class StopService {
       return db`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops WHERE id = ${id}`;
     });
     if (!stop) throw new Error("Stop not found");
-    return stop;
+    return normalizeStop(stop);
   }
 
   static async delete(id: number) {
