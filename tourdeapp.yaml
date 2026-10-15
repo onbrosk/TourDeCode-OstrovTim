@@ -5,7 +5,7 @@ containers:
     port: 3000
     env:
       PORT: "3000"
-      VITE_API_URL: "/api"
+      VITE_API_URL: "/api/v1"
   - name: server
     image: registry.tourde.cloud/ostrov_tim/server
     port: 3001
@@ -29,7 +29,7 @@ build:
     context: ./frontend
     dockerfile: ./frontend/Dockerfile
     args:
-      VITE_API_URL: "/api"
+      VITE_API_URL: "/api/v1"
   - name: server
     context: ./backend
     dockerfile: ./backend/docker/Dockerfile

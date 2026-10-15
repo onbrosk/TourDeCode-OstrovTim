@@ -13,10 +13,10 @@ export interface HealthResponse {
   status: "ok";
 }
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001/api";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001/api/v1";
 
 export async function getHealth(): Promise<HealthResponse> {
-  const res = await fetch(`${API_URL}/v1/health`);
+  const res = await fetch(`${API_URL}/health`);
   if (!res.ok) {
     throw new Error(`Health check failed with HTTP ${res.status}`);
   }
