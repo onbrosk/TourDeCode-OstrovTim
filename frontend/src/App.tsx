@@ -1,5 +1,6 @@
 import React from 'react'
 
+import StopDetail from "./StopDetail";
 import { Routes, Route } from "react-router-dom";
 import StopList from "./StopList";
 import { useEffect, useState } from "react";
@@ -33,7 +34,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/stops" element={<StopList />} />
-      <Route path="/stops/:id" element={<p>Stop detail (coming later)</p>} />
+      <Route path="/stops/:id" element={<StopDetail />} />
     </Routes>
   );
 }
