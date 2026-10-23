@@ -6,7 +6,7 @@ export const StopModel = {
     {
       name: t.String({ minLength: 1, maxLength: 255 }),
       image_url: t.Optional(
-        t.String({ format: "uri-reference", maxLength: 255 }),
+        t.Nullable(t.String({ format: "uri-reference", maxLength: 255 })),
       ),
       wheelchair_accessible: t.Boolean(),
       has_shelter: t.Boolean(),
