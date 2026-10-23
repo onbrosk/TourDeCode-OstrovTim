@@ -8,7 +8,16 @@ type StopInput = {
   has_ticket_machine: boolean;
 };
 
-function normalizeStop(stop: any) {
+type StopRecord = {
+  id: number;
+  name: string;
+  image_url: string | null;
+  wheelchair_accessible: boolean | number;
+  has_shelter: boolean | number;
+  has_ticket_machine: boolean | number;
+};
+
+function normalizeStop(stop: StopRecord) {
   return {
     ...stop,
     wheelchair_accessible: Boolean(stop.wheelchair_accessible),
@@ -16,18 +25,25 @@ function normalizeStop(stop: any) {
     has_ticket_machine: Boolean(stop.has_ticket_machine),
   };
 }
+
+export class StopNotFoundError extends Error {
+  constructor() {
+    super("Stop not found");
+    this.name = "StopNotFoundError";
+  }
+}
+
 export class StopService {
   static async getAll() {
-    const stops =  await sql`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops ORDER BY id`;
+    const stops = await sql<StopRecord[]>`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops ORDER BY id`;
     return stops.map(normalizeStop);
   }
 
   static async getById(id: number) {
-    const [stop] = await sql`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops WHERE id = ${id}`;
-    if (!stop) throw new Error("Stop not found");
-    
-    return normalizeStop(stop);
+    const [stop] = await sql<StopRecord[]>`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops WHERE id = ${id}`;
+    if (!stop) throw new StopNotFoundError();
 
+    return normalizeStop(stop);
   }
 
   static async create(data: StopInput) {
@@ -36,7 +52,7 @@ export class StopService {
         INSERT INTO stops (name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine)
         VALUES (${data.name}, ${data.image_url ?? null}, ${data.wheelchair_accessible}, ${data.has_shelter}, ${data.has_ticket_machine})
       `;
-      return db`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops WHERE id = LAST_INSERT_ID()`;
+      return db<StopRecord[]>`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops WHERE id = LAST_INSERT_ID()`;
     });
     if (!stop) throw new Error("Inserted stop could not be retrieved");
     return normalizeStop(stop);
@@ -52,16 +68,16 @@ export class StopService {
       `;
       if (result.affectedRows === 0) {
         const [existing] = await db`SELECT id FROM stops WHERE id = ${id}`;
-        if (!existing) throw new Error("Stop not found");
+        if (!existing) throw new StopNotFoundError();
       }
-      return db`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops WHERE id = ${id}`;
+      return db<StopRecord[]>`SELECT id, name, image_url, wheelchair_accessible, has_shelter, has_ticket_machine FROM stops WHERE id = ${id}`;
     });
-    if (!stop) throw new Error("Stop not found");
+    if (!stop) throw new StopNotFoundError();
     return normalizeStop(stop);
   }
 
   static async delete(id: number) {
     const result = await sql`DELETE FROM stops WHERE id = ${id}`;
-    if (result.affectedRows === 0) throw new Error("Stop not found");
+    if (result.affectedRows === 0) throw new StopNotFoundError();
   }
 }
