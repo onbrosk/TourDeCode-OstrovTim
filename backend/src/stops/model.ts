@@ -5,9 +5,7 @@ export const StopModel = {
   stopInput: t.Object(
     {
       name: t.String({ minLength: 1, maxLength: 255 }),
-      image_url: t.Optional(
-        t.Nullable(t.String({ format: "uri", maxLength: 255 })),
-      ),
+      image_url: t.Optional(t.Nullable(t.String({ maxLength: 255 }))),
       wheelchair_accessible: t.Boolean(),
       has_shelter: t.Boolean(),
       has_ticket_machine: t.Boolean(),
@@ -18,7 +16,7 @@ export const StopModel = {
     {
       id: t.Integer({ minimum: 1 }),
       name: t.String({ minLength: 1, maxLength: 255 }),
-      image_url: t.Nullable(t.String({ format: "uri", maxLength: 255 })),
+      image_url: t.Nullable(t.String({ maxLength: 255 })),
       wheelchair_accessible: t.Boolean(),
       has_shelter: t.Boolean(),
       has_ticket_machine: t.Boolean(),
