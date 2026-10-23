@@ -4,9 +4,35 @@ import { StopModel } from "./model";
 import { StopNotFoundError, StopService } from "./service";
 
 const imagesDir = join(import.meta.dir, "..", "data", "stopsImages");
+const stopInputFields = new Set([
+  "name",
+  "image_url",
+  "wheelchair_accessible",
+  "has_shelter",
+  "has_ticket_machine",
+]);
 
 export const stopsPlugin = new Elysia({ prefix: "/stops" })
   .model(StopModel)
+  .onParse(({ request, contentType }) => {
+    if (
+      (request.method === "POST" || request.method === "PUT") &&
+      contentType === "application/json" &&
+      /(?:^|\/)stops(?:\/\d+)?\/?$/.test(new URL(request.url).pathname)
+    ) {
+      return request.json().then((body: unknown) => {
+        if (
+          typeof body === "object" &&
+          body !== null &&
+          !Array.isArray(body) &&
+          Object.keys(body).some((field) => !stopInputFields.has(field))
+        ) {
+          return null;
+        }
+        return body;
+      });
+    }
+  })
   .onError(({ code, error, status }) => {
     if (code === "VALIDATION") {
       return status(400, {
