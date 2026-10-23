@@ -1,11 +1,13 @@
 import React from 'react'
 
+import { Routes, Route } from "react-router-dom";
+import StopList from "./StopList";
 import { useEffect, useState } from "react";
 import { getHealth } from "./api";
 import DisplayMembers from './components/DisplayMembers';
 import DisplayTeams from './components/DisplayTeams';
 
-function App() {
+function Home() {
   const [healthStatus, setHealthStatus] = useState("Loading...");
 
   useEffect(() => {
@@ -23,6 +25,16 @@ function App() {
       <DisplayTeams />
       <DisplayMembers />
     </main>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/stops" element={<StopList />} />
+      <Route path="/stops/:id" element={<p>Stop detail (coming later)</p>} />
+    </Routes>
   );
 }
 
