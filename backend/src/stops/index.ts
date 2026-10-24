@@ -14,6 +14,20 @@ const stopInputFields = new Set([
 
 export const stopsPlugin = new Elysia({ prefix: "/stops" })
   .model(StopModel)
+  .onRequest(({ request, set }) => {
+    if (!["GET", "PUT", "DELETE"].includes(request.method)) return;
+
+    const path = new URL(request.url).pathname;
+    const match = path.match(/(?:^|\/)stops\/([^/]+)\/?$/);
+    if (!match) return;
+
+    const rawId = match[1];
+    const id = Number(rawId);
+    if (!/^\d+$/.test(rawId) || !Number.isSafeInteger(id) || id < 1) {
+      set.status = 400;
+      return { error: "Invalid stop ID" };
+    }
+  })
   .onParse(({ request, contentType }) => {
     if (
       (request.method === "POST" || request.method === "PUT") &&
