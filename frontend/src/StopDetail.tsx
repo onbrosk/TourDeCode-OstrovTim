@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import StopsShell from "./StopsShell";
 
 type Stop = {
   id: number;
@@ -50,33 +51,121 @@ export default function StopDetail() {
     };
   }, [id]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return (
+      <StopsShell>
+        <main className="stops-content">
+          <div className="stops-status" role="status">
+            <span className="stops-spinner" aria-hidden="true" />
+            Loading stop...
+          </div>
+        </main>
+      </StopsShell>
+    );
+  }
 
   if (error || !stop) {
     return (
-      <main>
-        <p role="alert">{error ?? "Could not load the stop."}</p>
-        <Link to="/stops">Back to all stops</Link>
-      </main>
+      <StopsShell>
+        <main className="stops-content">
+          <Link className="stop-back-link" to="/stops">
+            <span aria-hidden="true">←</span> All campus stops
+          </Link>
+          <div className="stops-status stops-status-error" role="alert">
+            <span className="stops-status-icon" aria-hidden="true">!</span>
+            <div>
+              <h1>We couldn’t find that stop</h1>
+              <p>{error ?? "Could not load the stop."}</p>
+            </div>
+          </div>
+        </main>
+      </StopsShell>
     );
   }
 
   return (
-    <main>
-      <Link to="/stops">Back to all stops</Link>
-      <h1>{stop.name}</h1>
+    <StopsShell>
+      <main className="stops-content stop-detail-content">
+        <Link className="stop-back-link" to="/stops">
+          <span aria-hidden="true">←</span> All campus stops
+        </Link>
 
-      {stop.image_url ? (
-        <img src={stop.image_url} alt={stop.name} width={400} />
-      ) : (
-        <p>No image available.</p>
-      )}
+        <section className="stop-detail-hero" aria-labelledby="stop-title">
+          <div className="stop-detail-copy">
+            <h1 id="stop-title">{stop.name}</h1>
+            <a className="stop-detail-scroll" href="#stop-facilities">
+              Explore facilities <span aria-hidden="true">↓</span>
+            </a>
+          </div>
+          <div className="stop-detail-image">
+            {stop.image_url ? (
+              <img src={stop.image_url} alt={`${stop.name} stop`} />
+            ) : (
+              <div className="stop-image-placeholder">
+                <span aria-hidden="true">T</span>
+                <p>Stop image coming soon</p>
+              </div>
+            )}
+          </div>
+        </section>
 
-      <ul>
-        <li>Step-free: {stop.wheelchair_accessible ? "Yes" : "No"}</li>
-        <li>Shelter: {stop.has_shelter ? "Yes" : "No"}</li>
-        <li>Ticket machine: {stop.has_ticket_machine ? "Yes" : "No"}</li>
-      </ul>
-    </main>
+        <section
+          className="stop-facilities"
+          id="stop-facilities"
+          aria-labelledby="facilities-title"
+        >
+          <div className="stop-results-heading">
+            <div>
+              <h2 id="facilities-title">Facilities at this stop</h2>
+            </div>
+            <span className="stop-facilities-count">3 features</span>
+          </div>
+          <ul className="stop-facility-grid">
+            <li className="stop-facility-card">
+              <span className="stop-facility-icon" aria-hidden="true">↗</span>
+              <div>
+                <h3>Step-free access</h3>
+                <p>Accessible boarding and arrival</p>
+              </div>
+              <span
+                className={`stop-facility-value ${
+                  stop.wheelchair_accessible ? "is-available" : "is-unavailable"
+                }`}
+              >
+                {stop.wheelchair_accessible ? "Available" : "Not available"}
+              </span>
+            </li>
+            <li className="stop-facility-card">
+              <span className="stop-facility-icon" aria-hidden="true">⌂</span>
+              <div>
+                <h3>Shelter</h3>
+                <p>Cover while you wait</p>
+              </div>
+              <span
+                className={`stop-facility-value ${
+                  stop.has_shelter ? "is-available" : "is-unavailable"
+                }`}
+              >
+                {stop.has_shelter ? "Available" : "Not available"}
+              </span>
+            </li>
+            <li className="stop-facility-card">
+              <span className="stop-facility-icon" aria-hidden="true">▣</span>
+              <div>
+                <h3>Ticket machine</h3>
+                <p>Buy tickets at the stop</p>
+              </div>
+              <span
+                className={`stop-facility-value ${
+                  stop.has_ticket_machine ? "is-available" : "is-unavailable"
+                }`}
+              >
+                {stop.has_ticket_machine ? "Available" : "Not available"}
+              </span>
+            </li>
+          </ul>
+        </section>
+      </main>
+    </StopsShell>
   );
 }
