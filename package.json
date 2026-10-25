@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@elysia/bearer": "^1.4.4"
+  }
+}

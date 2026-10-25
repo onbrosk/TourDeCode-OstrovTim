@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { Elysia, t } from "elysia";
 import { StopModel } from "./model";
+import { bearer } from "@elysia/bearer";
 import { StopNotFoundError, StopService } from "./service";
 
 const imagesDir = join(import.meta.dir, "..", "data", "stopsImages");
@@ -11,9 +12,9 @@ const stopInputFields = new Set([
   "has_shelter",
   "has_ticket_machine",
 ]);
-
 export const stopsPlugin = new Elysia({ prefix: "/stops" })
   .model(StopModel)
+  .use(bearer())
   .onRequest(({ request, set }) => {
     if (!["GET", "PUT", "DELETE"].includes(request.method)) return;
 
@@ -54,20 +55,78 @@ export const stopsPlugin = new Elysia({ prefix: "/stops" })
       });
     }
   })
+  .guard(
+    {
+      beforeHandle({ bearer, set, status }) {
+        if (!bearer) {
+          set.headers["WWW-Authenticate"] = 'Bearer realm="stops"';
+          return status(401, { error: "Unauthorized" });
+        }
+      },
+    },
+    (app) =>
+      app
+        .put(
+          "/:id",
+          async ({ params: { id }, body, status }) => {
+            try {
+              return await StopService.update(id, body);
+            } catch (error) {
+              if (error instanceof StopNotFoundError) {
+                return status(404, { error: error.message });
+              }
+              throw error;
+            }
+          },
+          {
+            params: "params",
+            body: "stopInput",
+            response: {
+              200: StopModel.stopResponse,
+              400: StopModel.error,
+              404: StopModel.error,
+            },
+          },
+        )
+        .delete(
+          "/:id",
+          async ({ params: { id }, status }) => {
+            try {
+              await StopService.delete(id);
+              return new Response(null, { status: 204 });
+            } catch (error) {
+              if (error instanceof StopNotFoundError) {
+                return status(404, { error: error.message });
+              }
+              throw error;
+            }
+          },
+          {
+            params: "params",
+            response: {
+              204: t.Void(),
+              400: StopModel.error,
+              404: StopModel.error,
+            },
+          },
+        )
+        .post(
+          "/",
+          async ({ body, status }) =>
+            status(201, await StopService.create(body)),
+          {
+            body: "stopInput",
+            response: {
+              201: StopModel.stopResponse,
+              400: StopModel.error,
+              401: StopModel.error,
+            },
+          },
+        ),
+  )
   .get("/", async () => StopService.getAll(), {
     response: { 200: t.Array(StopModel.stopResponse) },
   })
-  .post(
-    "/",
-    async ({ body, status }) => status(201, await StopService.create(body)),
-    {
-      body: "stopInput",
-      response: {
-        201: StopModel.stopResponse,
-        400: StopModel.error,
-      },
-    },
-  )
   .get(
     "/:id",
     async ({ params: { id }, status }) => {
@@ -84,50 +143,6 @@ export const stopsPlugin = new Elysia({ prefix: "/stops" })
       params: "params",
       response: {
         200: StopModel.stopResponse,
-        400: StopModel.error,
-        404: StopModel.error,
-      },
-    },
-  )
-  .put(
-    "/:id",
-    async ({ params: { id }, body, status }) => {
-      try {
-        return await StopService.update(id, body);
-      } catch (error) {
-        if (error instanceof StopNotFoundError) {
-          return status(404, { error: error.message });
-        }
-        throw error;
-      }
-    },
-    {
-      params: "params",
-      body: "stopInput",
-      response: {
-        200: StopModel.stopResponse,
-        400: StopModel.error,
-        404: StopModel.error,
-      },
-    },
-  )
-  .delete(
-    "/:id",
-    async ({ params: { id }, status }) => {
-      try {
-        await StopService.delete(id);
-        return new Response(null, { status: 204 });
-      } catch (error) {
-        if (error instanceof StopNotFoundError) {
-          return status(404, { error: error.message });
-        }
-        throw error;
-      }
-    },
-    {
-      params: "params",
-      response: {
-        204: t.Void(),
         400: StopModel.error,
         404: StopModel.error,
       },

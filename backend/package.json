@@ -8,6 +8,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@elysia/bearer": "^1.4.4",
     "@elysiajs/cors": "^1.4.2",
     "elysia": "^1.4.0"
   },
