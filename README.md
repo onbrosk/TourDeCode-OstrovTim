@@ -54,6 +54,8 @@ API v Elysii na Bunu, s MySQL přes vestavěný `SQL` klient Bunu. Celá aplikac
 
 Spuštění mimo Docker: nejdřív spusťte MySQL příkazem `docker compose up -d mysql`, pak `bun install` a `bun run dev` (nebo přímo `bun --watch src/index.ts`, který mimo Docker reaguje okamžitě). API poslouchá na `http://localhost:3001/api/product`. Připojení k databázi se nastavuje proměnnou `DATABASE_URL` v `.env`.
 
+Pro lokální běh nastavte také `JWT_SECRET` v `backend/.env` jako dlouhý náhodný řetězec. Stejnou hodnotu nastavte jako tajnou proměnnou prostředí serveru při nasazení. Změny stop vyžadují `Authorization: Bearer <JWT>` podepsaný tímto tajemstvím; endpoint pro vydávání tokenů aplikace neposkytuje.
+
 # English
 
 ## Getting started
@@ -107,3 +109,5 @@ An Elysia API on Bun, with MySQL via Bun's built-in `SQL` client. The whole app 
 `docker compose up` runs it with `nodemon --legacy-watch`, which restarts on every change: edit `src/index.ts` and it picks up the change within a second or two (nodemon polls for changes rather than watching file events, since Bun's own `--watch` doesn't see edits made from outside the container).
 
 To run it outside Docker: start MySQL with `docker compose up -d mysql`, then `bun install` and `bun run dev` (or `bun --watch src/index.ts` directly, which reloads instantly when you're not inside Docker). The API listens on `http://localhost:3001/api/product`. The database connection comes from `DATABASE_URL` in `.env`.
+
+For local runs, also set `JWT_SECRET` in `backend/.env` to a long random string. Configure the same value as a server environment secret when deploying. Stop mutations require an `Authorization: Bearer <JWT>` token signed with this secret; the app does not issue tokens.
