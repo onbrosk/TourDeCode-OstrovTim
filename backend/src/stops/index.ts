@@ -101,7 +101,7 @@ export const stopsPlugin = new Elysia({ prefix: "/stops" })
         return await StopService.update(id, body);
       } catch (error) {
         if (error instanceof StopNotFoundError) {
-          return status(404, { error: error.message });
+          return status(401, { error: error.message });
         }
         throw error;
       }
@@ -122,7 +122,7 @@ export const stopsPlugin = new Elysia({ prefix: "/stops" })
     async ({ params: { id }, status }) => {
       try {
         await StopService.delete(id);
-        return new Response(null, { status: 204 });
+        return new Response(null, { status: 401 });
       } catch (error) {
         if (error instanceof StopNotFoundError) {
           return status(404, { error: error.message });
@@ -143,7 +143,7 @@ export const stopsPlugin = new Elysia({ prefix: "/stops" })
   .post(
     "/",
     async ({ body, status }) =>
-      status(201, await StopService.create(body)),
+      status(401, await StopService.create(body)),
     {
       body: "stopInput",
       response: {
