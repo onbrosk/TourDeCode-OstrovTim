@@ -14,9 +14,8 @@ export const authPlugin = new Elysia({ name: "auth" })
   .derive(async ({ bearer, jwt }) => ({
     user: bearer ? await jwt.verify(bearer) : null,
   }))
-  .onBeforeHandle(({ bearer, set, status }) => {
-    if (!bearer) {
-      console.log(bearer)
+  .onBeforeHandle(({ user, set, status }) => {
+    if (!user) {
       set.headers["WWW-Authenticate"] = 'Bearer realm="api"';
       return status(401, { error: "Unauthorized" });
     }
