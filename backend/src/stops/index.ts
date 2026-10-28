@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { Elysia, t } from "elysia";
-import { authPlugin } from "../plugins/authPlugin.js";
+import { isAuthorised } from "../plugins/authPlugin.js";
 import { StopModel } from "./model";
 import { StopNotFoundError, StopService } from "./service";
 
@@ -15,9 +15,20 @@ const stopInputFields = new Set([
 export const stopsPlugin = new Elysia({ prefix: "/stops" })
   .model(StopModel)
   .onRequest(({ request, set }) => {
+    const path = new URL(request.url).pathname;
+
+    if (
+      ["POST", "PUT", "DELETE"].includes(request.method) &&
+      /\/stops(?:\/[^/]+)?\/?$/.test(path) &&
+      !isAuthorised(request)
+    ) {
+      set.status = 401;
+      set.headers["WWW-Authenticate"] = 'Bearer realm="api"';
+      return { error: "Unauthorized" };
+    }
+
     if (!["GET", "PUT", "DELETE"].includes(request.method)) return;
 
-    const path = new URL(request.url).pathname;
     const match = path.match(/(?:^|\/)stops\/([^/]+)\/?$/);
     if (!match) return;
 
@@ -93,7 +104,6 @@ export const stopsPlugin = new Elysia({ prefix: "/stops" })
       },
     });
   })
-  .use(authPlugin)
   .put(
     "/:id",
     async ({ params: { id }, body, status }) => {

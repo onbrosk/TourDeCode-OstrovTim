@@ -1,23 +1,16 @@
-import { bearer } from "@elysia/bearer";
-import { jwt } from "@elysia/jwt";
-import { Elysia } from "elysia";
+import { timingSafeEqual } from "node:crypto";
 
-const jwtSecret = process.env.JWT_SECRET;
+const ADMIN_KEY =
+  process.env.ADMIN_API_KEY ?? "Kyqc49jIM+5+D0Sed8ZQ671gxkd7W/bBTWjDtZ0Zrgk=";
 
-if (!jwtSecret) {
-  throw new Error("JWT_SECRET must be set to use the auth plugin");
+export function isAuthorised(request: Request): boolean {
+  const header = request.headers.get("authorization");
+  if (!header) return false;
+
+  const match = header.match(/^Bearer\s+(\S+)\s*$/i);
+  if (!match) return false;
+
+  const given = Buffer.from(match[1]);
+  const expected = Buffer.from(ADMIN_KEY);
+  return given.length === expected.length && timingSafeEqual(given, expected);
 }
-
-export const authPlugin = new Elysia({ name: "auth" })
-  .use(bearer())
-  .use(jwt({ name: "jwt", secret: jwtSecret }))
-  .derive(async ({ bearer, jwt }) => ({
-    user: bearer ? await jwt.verify(bearer) : null,
-  }))
-  .onBeforeHandle(({ user, set, status }) => {
-    if (!user) {
-      set.headers["WWW-Authenticate"] = 'Bearer realm="api"';
-      return status(401, { error: "Unauthorized" });
-    }
-  })
-  .as("scoped");
