@@ -1,7 +1,10 @@
 import { timingSafeEqual } from "node:crypto";
 
-const ADMIN_KEY =
-  process.env.ADMIN_API_KEY ?? "Kyqc49jIM+5+D0Sed8ZQ671gxkd7W/bBTWjDtZ0Zrgk=";
+const ADMIN_KEY = process.env.ADMIN_API_KEY;
+
+if (!ADMIN_KEY?.trim()) {
+  throw new Error("ADMIN_API_KEY must be configured");
+}
 
 export function isAuthorised(request: Request): boolean {
   const header = request.headers.get("authorization");
