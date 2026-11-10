@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS lines (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  number VARCHAR(20) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  `type` VARCHAR(50) NOT NULL,
+  color VARCHAR(7) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS journeys (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  line_id INT NOT NULL,
+  direction ENUM('outbound', 'inbound') NOT NULL,
+  CONSTRAINT fk_journeys_line
+    FOREIGN KEY (line_id) REFERENCES lines(id)
+    ON DELETE CASCADE
+);
